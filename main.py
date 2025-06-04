@@ -10,7 +10,7 @@ from astrbot.core.config.astrbot_config import AstrBotConfig
 
 
 
-@register("astrbot_plugin_yunshi", "运势图片生成器", "发送'运势'获取随机二次元运势图", "1.0.0")
+@register("astrbot_plugin_yunshi", "Abyss-Seeker", "发送'运势'获取随机二次元运势图", "1.0.0")
 class YunshiPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
