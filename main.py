@@ -7,7 +7,7 @@ from astrbot.api.message_components import Image
 from io import BytesIO
 
 
-@register("astrbot_plugin_yunshi", "Abyss-Seeker!", "发送'运势'获取随机二次元运势图", "1.0.0")
+@register("astrbot_plugin_yunshi", "运势图片生成器", "发送'运势'获取随机二次元运势图", "1.0.0")
 class YunshiPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
@@ -27,7 +27,8 @@ class YunshiPlugin(Star):
             await self.session.close()
             logger.info("API会话已关闭")
 
-    @filter.contains("运势")
+    # 使用正则表达式匹配消息内容
+    @filter.regex(r".*运势.*")
     async def handle_yunshi(self, event: AstrMessageEvent):
         """处理运势图片请求"""
         user_id = event.get_sender_id()
@@ -37,14 +38,13 @@ class YunshiPlugin(Star):
         last_request = self.rate_limits.get(user_id, 0)
         if current_time - last_request < self.cooldown:
             logger.info(f"用户 {user_id} 请求过于频繁，已忽略")
-            yield event.plain_result(f"{user_id} 别想逆天改命！")
             return  # 不回复，或者可以发送提示消息
 
         # 更新请求时间
         self.rate_limits[user_id] = current_time
 
         try:
-            # 获取发送者信息（可选）
+            # 获取发送者信息
             user_name = event.get_sender_name()
             logger.info(f"收到来自 {user_name} 的运势请求")
 
