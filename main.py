@@ -5,6 +5,7 @@ import os
 from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
+from astrbot.api.message_components import Image
 
 
 @register("astrbot_plugin_yunshi", "运势图片生成器", "发送'运势'获取随机二次元运势图", "1.0.0")
@@ -72,8 +73,9 @@ class YunshiPlugin(Star):
                     temp_file = tmp.name
                 logger.info(f"临时图片文件保存至: {temp_file}")
 
-            # 发送图片文件
-            yield event.file_image(temp_file)
+            # 创建图片消息组件并发送
+            image_component = Image.fromFileSystem(temp_file)
+            yield event.chain_result([image_component])
 
         except aiohttp.ClientError as e:
             logger.error(f"网络请求失败: {str(e)}")
