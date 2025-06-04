@@ -1,10 +1,10 @@
 import aiohttp
 import asyncio
+import tempfile
+import os
 from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
-from astrbot.api.message_components import Image
-from io import BytesIO
 
 
 @register("astrbot_plugin_yunshi", "运势图片生成器", "发送'运势'获取随机二次元运势图", "1.0.0")
@@ -43,6 +43,8 @@ class YunshiPlugin(Star):
         # 更新请求时间
         self.rate_limits[user_id] = current_time
 
+        # 创建临时文件
+        temp_file = None
         try:
             # 获取发送者信息
             user_name = event.get_sender_name()
@@ -64,8 +66,14 @@ class YunshiPlugin(Star):
 
                 logger.info(f"成功获取运势图片（{len(image_data)}字节）")
 
-            # 创建图片消息并发送
-            yield event.image_result(BytesIO(image_data))
+                # 创建临时文件
+                with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
+                    tmp.write(image_data)
+                    temp_file = tmp.name
+                logger.info(f"临时图片文件保存至: {temp_file}")
+
+            # 发送图片文件
+            yield event.file_image(temp_file)
 
         except aiohttp.ClientError as e:
             logger.error(f"网络请求失败: {str(e)}")
@@ -73,3 +81,11 @@ class YunshiPlugin(Star):
         except Exception as e:
             logger.error(f"处理运势请求时出错: {str(e)}")
             yield event.plain_result("获取运势图片时发生错误，请稍后再试")
+        finally:
+            # 清理临时文件
+            if temp_file and os.path.exists(temp_file):
+                try:
+                    os.unlink(temp_file)
+                    logger.info(f"已删除临时文件: {temp_file}")
+                except Exception as e:
+                    logger.error(f"删除临时文件失败: {str(e)}")
