@@ -6,16 +6,18 @@ from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
 from astrbot.api.message_components import Image
+from astrbot.core.config.astrbot_config import AstrBotConfig
+
 
 
 @register("astrbot_plugin_yunshi", "运势图片生成器", "发送'运势'获取随机二次元运势图", "1.0.0")
 class YunshiPlugin(Star):
-    def __init__(self, context: Context):
+    def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
         self.api_url = "https://www.hhlqilongzhu.cn/api/tu_yunshi.php"
         self.session = None
         self.rate_limits = {}  # 用户频率限制字典
-        self.cooldown = 300  # 5分钟冷却时间（秒）
+        self.cooldown = config.get("cooldown")  # 5分钟冷却时间（秒）
 
     async def initialize(self):
         """初始化aiohttp会话"""
@@ -39,7 +41,7 @@ class YunshiPlugin(Star):
         last_request = self.rate_limits.get(user_id, 0)
         if current_time - last_request < self.cooldown:
             logger.info(f"用户 {user_id} 请求过于频繁，已忽略")
-            return  # 不回复，或者可以发送提示消息
+            yield(f"{user_id}亲，别想逆天改命哦~等会再来问吧")
 
         # 更新请求时间
         self.rate_limits[user_id] = current_time

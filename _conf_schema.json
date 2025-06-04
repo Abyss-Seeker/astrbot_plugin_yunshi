@@ -1,0 +1,9 @@
+{
+  "cooldown": {
+    "description": "单个用户的两次运势请求间的冷却时间",
+    "type": "int",
+    "hint": "一般0就行，除非有人喜欢刷屏",
+    "obvious_hint": true,
+    "default": 0
+  }
+}
