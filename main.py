@@ -31,7 +31,8 @@ class YunshiPlugin(Star):
             logger.info("API会话已关闭")
 
     # 使用正则表达式匹配消息内容
-    @filter.regex(r".*运势.*")
+    # 增加日文，繁中汉字匹配
+    @filter.regex(r".*[运運運][势勢勢].*")
     async def handle_yunshi(self, event: AstrMessageEvent):
         """处理运势图片请求"""
         user_id = event.get_sender_id()
