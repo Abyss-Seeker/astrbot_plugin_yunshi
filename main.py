@@ -42,7 +42,7 @@ class YunshiPlugin(Star):
         last_request = self.rate_limits.get(user_id, 0)
         if current_time - last_request < self.cooldown:
             logger.info(f"用户 {user_id} 请求过于频繁，已忽略")
-            yield(f"{user_id}亲，别想逆天改命哦~等会再来问吧")
+            yield event.plain_result(f"{user_id}亲，别想逆天改命哦~等会再来问吧")
 
         # 更新请求时间
         self.rate_limits[user_id] = current_time
