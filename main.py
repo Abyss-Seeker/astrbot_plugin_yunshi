@@ -36,13 +36,15 @@ class YunshiPlugin(Star):
     async def handle_yunshi(self, event: AstrMessageEvent):
         """处理运势图片请求"""
         user_id = event.get_sender_id()
+        user_nick = event.get_sender_name()
         current_time = asyncio.get_event_loop().time()
 
         # 检查频率限制
         last_request = self.rate_limits.get(user_id, 0)
         if current_time - last_request < self.cooldown:
             logger.info(f"用户 {user_id} 请求过于频繁，已忽略")
-            yield event.plain_result(f"{user_id}亲，别想逆天改命哦~等会再来问吧")
+            yield event.plain_result(f"{user_nick}亲，别想逆天改命哦~等会再来问吧")
+            return
 
         # 更新请求时间
         self.rate_limits[user_id] = current_time
